@@ -5,7 +5,7 @@ import java.util.Scanner;
 public class Main {
 
     public static void main(String[] args) {
-        Biblioteca biblioteca = new Biblioteca("Biblioteca Central");
+        Biblioteca biblioteca = new Biblioteca("Biblioteca ");
 
 
         Bibliotecario bibliotecario = new Bibliotecario("USER_01", "Bibliotecario");
