@@ -1,19 +1,17 @@
 package models;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
-
 import java.util.List;
 import java.util.Scanner;
 
 public class Main {
 
-    private static List<Libro> inventario = new java.util.ArrayList<>();
-
     public static void main(String[] args) {
-        // Iniciar sesión
-        Usuario usuario = new Usuario();
-        if (usuario.login()) {
+        Biblioteca biblioteca = new Biblioteca("Biblioteca Central");
+
+
+        Bibliotecario bibliotecario = new Bibliotecario("USER_01", "Bibliotecario");
+        Usuario usuario = new Usuario("USER_02", "Usuario");
+
+        if (login()) {
             int opcion;
             do {
                 mostrarMenu();
@@ -22,24 +20,19 @@ public class Main {
 
                 switch (opcion) {
                     case 1:
-                        RegistroLibro registroLibro = new RegistroLibro();
-                        registroLibro.ejecutar();
+                        registrarLibro(bibliotecario, biblioteca);
                         break;
                     case 2:
-                        RegistroPrestamo registroPrestamo = new RegistroPrestamo();
-                        registroPrestamo.ejecutar();
+                        registrarPrestamo(bibliotecario, biblioteca);
                         break;
                     case 3:
-                        RegistroDevolucion registroDevolucion = new RegistroDevolucion();
-                        registroDevolucion.ejecutar();
+                        registrarDevolucion(bibliotecario, biblioteca);
                         break;
                     case 4:
-                        ConsultaMaterialBibliografico consultaMaterial = new ConsultaMaterialBibliografico();
-                        consultaMaterial.ejecutar();
+                        consultarMaterialBibliografico(usuario, biblioteca);
                         break;
                     case 5:
-                        VerInventario verInventario = new VerInventario();
-                        verInventario.ejecutar();
+                        verInventario(bibliotecario, biblioteca);
                         break;
                     case 6:
                         System.out.println("Saliendo del programa. ¡Hasta luego!");
@@ -55,6 +48,17 @@ public class Main {
         }
     }
 
+    private static boolean login() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Ingrese el usuario:");
+        String usuario = scanner.nextLine();
+        System.out.println("Ingrese la contraseña:");
+        String contrasena = scanner.nextLine();
+
+        if (usuario.equals("bibliotecario")) if (contrasena.equals("123")) return true;
+        return false;
+    }
+
     private static void mostrarMenu() {
         System.out.println("\nMenú Principal");
         System.out.println("1. Registrar Libro");
@@ -66,100 +70,29 @@ public class Main {
         System.out.println("Ingrese el número de la opción deseada:");
     }
 
-    private static class Usuario {
-        private String usuario;
-        private String contrasena;
+    private static void registrarLibro(Bibliotecario bibliotecario, Biblioteca biblioteca) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Ingrese el ISBN del libro:");
+        String isbn = scanner.nextLine();
 
-        public boolean login() {
-            Scanner scanner = new Scanner(System.in);
-            System.out.println("Ingrese el usuario:");
-            usuario = scanner.nextLine();
-            System.out.println("Ingrese la contraseña:");
-            contrasena = scanner.nextLine();
-
-            return (usuario.equals("bibliotecario") && contrasena.equals("clave123")) ||
-                    (usuario.equals("usuario") && contrasena.equals("clave456"));
+        if (buscarLibroPorISBN(biblioteca, isbn) != null) {
+            System.out.println("¡El libro con ISBN " + isbn + " ya está registrado!");
+            return;
         }
+
+        System.out.println("Ingrese el título del libro:");
+        String titulo = scanner.nextLine();
+        System.out.println("Ingrese el autor del libro:");
+        String autor = scanner.nextLine();
+
+        Libro nuevoLibro = new Libro(isbn, titulo, autor);
+        bibliotecario.registrarLibro(biblioteca, nuevoLibro);
+
+        System.out.println("Libro registrado exitosamente.");
     }
 
-    private static class RegistroLibro {
-        public void ejecutar() {
-            Scanner scanner = new Scanner(System.in);
-            System.out.println("Ingrese el ISBN del libro:");
-            String isbn = scanner.nextLine();
-
-            // Verificar si el libro ya está registrado
-            if (buscarLibroPorISBN(isbn) != null) {
-                System.out.println("¡El libro con ISBN " + isbn + " ya está registrado!");
-                return;
-            }
-
-            System.out.println("Ingrese el título del libro:");
-            String titulo = scanner.nextLine();
-            System.out.println("Ingrese el autor del libro:");
-            String autor = scanner.nextLine();
-
-            Libro nuevoLibro = new Libro(isbn, titulo, autor);
-            inventario.add(nuevoLibro);
-
-            System.out.println("Libro registrado exitosamente.");
-        }
-    }
-
-    private static class RegistroPrestamo {
-        public void ejecutar() {
-            Scanner scanner = new Scanner(System.in);
-            System.out.println("Ingrese el título del libro a prestar:");
-            String tituloLibro = scanner.nextLine();
-
-            for (Libro libro : inventario) {
-                if (libro.getTitulo().equals(tituloLibro)) {
-                    System.out.println("Préstamo del libro '" + tituloLibro + "' registrado exitosamente.");
-                    return;
-                }
-            }
-
-            System.out.println("Libro no encontrado en el inventario.");
-        }
-    }
-
-    private static class RegistroDevolucion {
-        public void ejecutar() {
-            Scanner scanner = new Scanner(System.in);
-            System.out.println("Ingrese el título del libro a devolver:");
-            String tituloLibro = scanner.nextLine();
-
-            for (Libro libro : inventario) {
-                if (libro.getTitulo().equals(tituloLibro)) {
-                    System.out.println("Devolución del libro '" + tituloLibro + "' registrada exitosamente.");
-                    return;
-                }
-            }
-
-            System.out.println("Libro no encontrado en el inventario.");
-        }
-    }
-
-    private static class ConsultaMaterialBibliografico {
-        public void ejecutar() {
-            System.out.println("Consulta de Material Bibliográfico");
-            System.out.println("Material Bibliográfico Disponible:");
-            for (Libro libro : inventario) {
-                System.out.println(libro.getTitulo() + " - " + libro.getAutor());
-            }
-        }
-    }
-
-    private static class VerInventario {
-        public void ejecutar() {
-            System.out.println("Inventario actual:");
-            for (Libro libro : inventario) {
-                System.out.println(libro.getTitulo() + " - " + libro.getAutor());
-            }
-        }
-    }
-
-    private static Libro buscarLibroPorISBN(String isbn) {
+    private static Libro buscarLibroPorISBN(Biblioteca biblioteca, String isbn) {
+        List<Libro> inventario = biblioteca.getInventario();
         for (Libro libro : inventario) {
             if (libro.getIsbn().equals(isbn)) {
                 return libro;
@@ -168,28 +101,28 @@ public class Main {
         return null;
     }
 
-    private static class Libro {
-        private String isbn;
-        private String titulo;
-        private String autor;
 
-        public Libro(String isbn, String titulo, String autor) {
-            this.isbn = isbn;
-            this.titulo = titulo;
-            this.autor = autor;
-        }
+    private static void registrarPrestamo(Bibliotecario bibliotecario, Biblioteca biblioteca) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Ingrese el título del libro a prestar:");
+        String tituloLibro = scanner.nextLine();
 
-        public String getTitulo() {
-            return titulo;
-        }
+        bibliotecario.registrarPrestamo(biblioteca, tituloLibro);
+    }
 
-        public String getAutor() {
-            return autor;
-        }
+    private static void registrarDevolucion(Bibliotecario bibliotecario, Biblioteca biblioteca) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Ingrese el título del libro a devolver:");
+        String tituloLibro = scanner.nextLine();
 
-        public String getIsbn() {
-            return isbn;
-        }
+        bibliotecario.registrarDevolucion(biblioteca, tituloLibro);
+    }
+
+    private static void consultarMaterialBibliografico(Usuario usuario, Biblioteca biblioteca) {
+        usuario.consultarMaterialBibliografico(biblioteca);
+    }
+
+    private static void verInventario(Bibliotecario bibliotecario, Biblioteca biblioteca) {
+        bibliotecario.verInventario(biblioteca);
     }
 }
-

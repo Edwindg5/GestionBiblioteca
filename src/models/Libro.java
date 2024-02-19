@@ -1,6 +1,5 @@
 package models;
 
-
 class Libro {
     private String isbn;
     private String titulo;
@@ -16,12 +15,15 @@ class Libro {
         return titulo;
     }
 
-
     public String getAutor() {
         return autor;
     }
 
     public String getIsbn() {
         return isbn;
+    }
+
+    public void setIsbn(String isbn) {
+        this.isbn = isbn;
     }
 }
